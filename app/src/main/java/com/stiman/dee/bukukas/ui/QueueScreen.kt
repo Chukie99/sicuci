@@ -51,7 +51,8 @@ fun QueueScreen(
     onNavigateToDashboard: () -> Unit = {},
     onNavigateToSettings: () -> Unit = {},
     onNavigateToReport: () -> Unit = {},
-    onNavigateToCustomerHistory: () -> Unit = {}
+    onNavigateToCustomerHistory: () -> Unit = {},
+    onShareQueue: () -> Unit = {}
 ) {
     val activeOrders by viewModel.activeOrders.collectAsState()
     var showAddDialog by remember { mutableStateOf(false) }
@@ -89,7 +90,8 @@ fun QueueScreen(
             onSettingsClick = onNavigateToSettings,
             onReportClick = onNavigateToReport,
             onDashboardClick = onNavigateToDashboard,
-            onCustomerHistoryClick = onNavigateToCustomerHistory
+            onCustomerHistoryClick = onNavigateToCustomerHistory,
+            onShareClick = onShareQueue
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -220,7 +222,8 @@ fun QueueHeader(
     onSettingsClick: () -> Unit = {},
     onReportClick: () -> Unit = {},
     onDashboardClick: () -> Unit,
-    onCustomerHistoryClick: () -> Unit = {}
+    onCustomerHistoryClick: () -> Unit = {},
+    onShareClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
     Row(
@@ -286,18 +289,11 @@ fun QueueHeader(
             }
 
             OutlinedButton(
-                onClick = {
-                    // Open Ko-fi link
-                    val intent = android.content.Intent(
-                        android.content.Intent.ACTION_VIEW,
-                        android.net.Uri.parse("https://ko-fi.com/chuckie999")
-                    )
-                    context.startActivity(intent)
-                },
+                onClick = { onShareClick() },
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFFF5E5B))
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = BlueAccent)
             ) {
-                Text("☕", fontSize = 14.sp)
+                Text("Share", fontSize = 13.sp)
             }
 
             Button(

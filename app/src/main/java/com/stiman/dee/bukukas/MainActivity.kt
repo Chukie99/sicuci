@@ -1,5 +1,6 @@
 package com.stiman.dee.bukukas
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -30,6 +31,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             BukuKasTheme {
                 var currentScreen by remember { mutableStateOf("queue") }
+                val activeOrders by viewModel.activeOrders.collectAsState()
 
                 when (currentScreen) {
                     "queue" -> {
@@ -38,7 +40,10 @@ class MainActivity : ComponentActivity() {
                             onNavigateToDashboard = { currentScreen = "dashboard" },
                             onNavigateToSettings = { currentScreen = "settings" },
                             onNavigateToReport = { currentScreen = "report" },
-                            onNavigateToCustomerHistory = { currentScreen = "customer_history" }
+                            onNavigateToCustomerHistory = { currentScreen = "customer_history" },
+                            onShareQueue = {
+                                shareQueueStatus(activeOrders)
+                            }
                         )
                     }
                     "dashboard" -> {
@@ -80,5 +85,63 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun shareQueueStatus(orders: List<CustomerOrder>) {
+        val waiting = orders.filter { it.status == "waiting" }
+        val washing = orders.filter { it.status == "washing" }
+        val done = orders.filter { it.status == "done" }
+
+        val queueText = buildString {
+            appendLine("🚿 *SiCuci - Status Antrian*")
+            appendLine("━━━━━━━━━━━━━━━━━━━━━")
+            appendLine()
+
+            if (orders.isEmpty()) {
+                appendLine("✅ *Tidak ada antrian!*")
+                appendLine("Langsung datang aja ya!")
+            } else {
+                appendLine("📋 *Total: ${orders.size} kendaraan*")
+                appendLine()
+
+                if (waiting.isNotEmpty()) {
+                    appendLine("⏳ *Menunggu (${waiting.size})*")
+                    waiting.forEach { order ->
+                        appendLine("   #${order.queueNumber} ${order.plateNumber} - ${order.motorType}")
+                    }
+                    appendLine()
+                }
+
+                if (washing.isNotEmpty()) {
+                    appendLine("🚿 *Sedang Dicuci (${washing.size})*")
+                    washing.forEach { order ->
+                        appendLine("   #${order.queueNumber} ${order.plateNumber} - ${order.motorType}")
+                    }
+                    appendLine()
+                }
+
+                if (done.isNotEmpty()) {
+                    appendLine("✅ *Selesai (${done.size})*")
+                    done.forEach { order ->
+                        appendLine("   #${order.queueNumber} ${order.plateNumber} - ${order.motorType}")
+                    }
+                    appendLine()
+                }
+
+                appendLine("━━━━━━━━━━━━━━━━━━━━━")
+                appendLine("⏱️ Estimasi tunggu: ~${waiting.size * 15} menit")
+                appendLine("(asumsi 15 menit/kendaraan)")
+            }
+
+            appendLine()
+            appendLine("📍 SiCuci - Cuci Motor & Mobil")
+        }
+
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, queueText)
+            putExtra(Intent.EXTRA_SUBJECT, "Status Antrian SiCuci")
+        }
+        startActivity(Intent.createChooser(intent, "Bagikan Status Antrian"))
     }
 }
