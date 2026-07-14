@@ -37,8 +37,6 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.stiman.dee.bukukas.CustomerOrder
 import com.stiman.dee.bukukas.TransactionViewModel
-import com.stiman.dee.bukukas.motorTypes
-import com.stiman.dee.bukukas.serviceOptions
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
@@ -48,11 +46,8 @@ import java.util.Locale
 @Composable
 fun QueueScreen(
     viewModel: TransactionViewModel,
-    onNavigateToDashboard: () -> Unit = {},
-    onNavigateToSettings: () -> Unit = {},
-    onNavigateToReport: () -> Unit = {},
-    onNavigateToCustomerHistory: () -> Unit = {},
-    onShareQueue: () -> Unit = {}
+    onShareQueue: () -> Unit = {},
+    modifier: Modifier = Modifier
 ) {
     val activeOrders by viewModel.activeOrders.collectAsState()
     var showAddDialog by remember { mutableStateOf(false) }
@@ -73,8 +68,19 @@ fun QueueScreen(
     }
 
     Scaffold(
+        modifier = modifier,
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = DarkBackground
+        containerColor = DarkBackground,
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { showAddDialog = true },
+                containerColor = IncomeGreen,
+                contentColor = Color.White,
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Tambah Antrian", modifier = Modifier.size(28.dp))
+            }
+        }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -85,12 +91,6 @@ fun QueueScreen(
         // Header
         QueueHeader(
             orderCount = activeOrders.size,
-            onAddClick = { showAddDialog = true },
-            onExpenseClick = { showExpenseDialog = true },
-            onSettingsClick = onNavigateToSettings,
-            onReportClick = onNavigateToReport,
-            onDashboardClick = onNavigateToDashboard,
-            onCustomerHistoryClick = onNavigateToCustomerHistory,
             onShareClick = onShareQueue
         )
 
@@ -217,15 +217,8 @@ fun QueueScreen(
 @Composable
 fun QueueHeader(
     orderCount: Int,
-    onAddClick: () -> Unit,
-    onExpenseClick: () -> Unit = {},
-    onSettingsClick: () -> Unit = {},
-    onReportClick: () -> Unit = {},
-    onDashboardClick: () -> Unit,
-    onCustomerHistoryClick: () -> Unit = {},
     onShareClick: () -> Unit = {}
 ) {
-    val context = LocalContext.current
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -245,67 +238,14 @@ fun QueueHeader(
             )
         }
 
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedButton(
-                onClick = onExpenseClick,
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = ExpenseRed)
-            ) {
-                Icon(Icons.Default.Remove, contentDescription = null, modifier = Modifier.size(16.dp))
-                Spacer(modifier = Modifier.width(6.dp))
-                Text("Beli Alat", fontSize = 13.sp)
-            }
-
-            OutlinedButton(
-                onClick = onSettingsClick,
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = TextSecondary)
-            ) {
-                Text("Harga", fontSize = 13.sp)
-            }
-
-            OutlinedButton(
-                onClick = onReportClick,
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = BlueAccent)
-            ) {
-                Text("Laporan", fontSize = 13.sp)
-            }
-
-            OutlinedButton(
-                onClick = onCustomerHistoryClick,
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = Gold)
-            ) {
-                Text("Pelanggan", fontSize = 13.sp)
-            }
-
-            OutlinedButton(
-                onClick = onDashboardClick,
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = TextSecondary)
-            ) {
-                Text("Keuangan", fontSize = 13.sp)
-            }
-
-            OutlinedButton(
-                onClick = { onShareClick() },
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = BlueAccent)
-            ) {
-                Text("Share", fontSize = 13.sp)
-            }
-
-            Button(
-                onClick = onAddClick,
-                colors = ButtonDefaults.buttonColors(containerColor = IncomeGreen),
-                shape = RoundedCornerShape(12.dp),
-                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
-            ) {
-                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(20.dp))
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Tambah Antrian", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-            }
+        OutlinedButton(
+            onClick = { onShareClick() },
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = BlueAccent)
+        ) {
+            Icon(Icons.Default.Search, contentDescription = null, modifier = Modifier.size(16.dp))
+            Spacer(modifier = Modifier.width(6.dp))
+            Text("Share", fontSize = 13.sp)
         }
     }
 }

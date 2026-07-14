@@ -33,7 +33,8 @@ import java.util.Locale
 @Composable
 fun ReportScreen(
     viewModel: TransactionViewModel,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val allTransactions by viewModel.allTransactions.collectAsState()
     val totalIncomeAll by viewModel.totalIncomeAll.collectAsState()
@@ -85,7 +86,7 @@ fun ReportScreen(
     }
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(DarkBackground)
             .padding(24.dp)

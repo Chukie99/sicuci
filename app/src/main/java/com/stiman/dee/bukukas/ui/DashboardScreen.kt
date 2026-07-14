@@ -42,7 +42,8 @@ import java.util.Locale
 fun DashboardScreen(
     viewModel: TransactionViewModel,
     onNavigateBack: () -> Unit = {},
-    onDownloadCsv: () -> Unit = {}
+    onDownloadCsv: () -> Unit = {},
+    modifier: Modifier = Modifier
 ) {
     val transactions by viewModel.transactions.collectAsState()
     val allTransactions by viewModel.allTransactions.collectAsState()
@@ -63,6 +64,7 @@ fun DashboardScreen(
     val scope = rememberCoroutineScope()
 
     Scaffold(
+        modifier = modifier,
         snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = DarkBackground
     ) { paddingValues ->

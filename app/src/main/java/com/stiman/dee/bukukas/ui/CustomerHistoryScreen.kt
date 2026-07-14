@@ -27,7 +27,8 @@ import java.util.Locale
 @Composable
 fun CustomerHistoryScreen(
     viewModel: TransactionViewModel,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val customerHistory by viewModel.customerHistory.collectAsState()
     val searchPlate by viewModel.searchPlateNumber.collectAsState()
@@ -42,7 +43,7 @@ fun CustomerHistoryScreen(
     val totalVisits = customerHistory.filter { it.status == "paid" }.size
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(DarkBackground)
             .padding(24.dp)

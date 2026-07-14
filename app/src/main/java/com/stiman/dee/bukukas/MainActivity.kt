@@ -6,7 +6,17 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.stiman.dee.bukukas.ui.BukuKasTheme
@@ -33,59 +43,97 @@ class MainActivity : ComponentActivity() {
                 var currentScreen by remember { mutableStateOf("queue") }
                 val activeOrders by viewModel.activeOrders.collectAsState()
 
-                when (currentScreen) {
-                    "queue" -> {
-                        QueueScreen(
-                            viewModel = viewModel,
-                            onNavigateToDashboard = { currentScreen = "dashboard" },
-                            onNavigateToSettings = { currentScreen = "settings" },
-                            onNavigateToReport = { currentScreen = "report" },
-                            onNavigateToCustomerHistory = { currentScreen = "customer_history" },
-                            onShareQueue = {
-                                shareQueueStatus(activeOrders)
+                val bottomNavItems = listOf(
+                    BottomNavItem("queue", "Antrian", Icons.Default.Home),
+                    BottomNavItem("dashboard", "Keuangan", Icons.Default.DateRange),
+                    BottomNavItem("report", "Laporan", Icons.Default.List),
+                    BottomNavItem("customer_history", "Pelanggan", Icons.Default.Person),
+                    BottomNavItem("settings", "Pengaturan", Icons.Default.Settings),
+                )
+
+                Scaffold(
+                    bottomBar = {
+                        NavigationBar(
+                            containerColor = com.stiman.dee.bukukas.ui.DarkCard
+                        ) {
+                            bottomNavItems.forEach { item ->
+                                NavigationBarItem(
+                                    icon = { Icon(item.icon, contentDescription = item.label) },
+                                    label = { Text(item.label) },
+                                    selected = currentScreen == item.route,
+                                    onClick = { currentScreen = item.route },
+                                    colors = NavigationBarItemDefaults.colors(
+                                        selectedIconColor = com.stiman.dee.bukukas.ui.BlueAccent,
+                                        selectedTextColor = com.stiman.dee.bukukas.ui.BlueAccent,
+                                        unselectedIconColor = com.stiman.dee.bukukas.ui.TextMuted,
+                                        unselectedTextColor = com.stiman.dee.bukukas.ui.TextMuted,
+                                        indicatorColor = com.stiman.dee.bukukas.ui.BlueAccent.copy(alpha = 0.15f)
+                                    )
+                                )
                             }
-                        )
+                        }
                     }
-                    "dashboard" -> {
-                        val allTransactions by viewModel.allTransactions.collectAsState()
-                        DashboardScreen(
-                            viewModel = viewModel,
-                            onNavigateBack = { currentScreen = "queue" },
-                            onDownloadCsv = {
-                                if (allTransactions.isEmpty()) {
-                                    Toast.makeText(this@MainActivity, "Belum ada data untuk diexport", Toast.LENGTH_SHORT).show()
-                                    return@DashboardScreen
-                                }
-                                lifecycleScope.launch(Dispatchers.IO) {
-                                    val file = CsvExporter.exportToCsv(this@MainActivity, allTransactions)
-                                    withContext(Dispatchers.Main) {
-                                        CsvExporter.shareCsv(this@MainActivity, file)
+                ) { paddingValues ->
+                    when (currentScreen) {
+                        "queue" -> {
+                            QueueScreen(
+                                viewModel = viewModel,
+                                onShareQueue = {
+                                    shareQueueStatus(activeOrders)
+                                },
+                                modifier = Modifier.padding(paddingValues)
+                            )
+                        }
+                        "dashboard" -> {
+                            val allTransactions by viewModel.allTransactions.collectAsState()
+                            DashboardScreen(
+                                viewModel = viewModel,
+                                onNavigateBack = { currentScreen = "queue" },
+                                onDownloadCsv = {
+                                    if (allTransactions.isEmpty()) {
+                                        Toast.makeText(this@MainActivity, "Belum ada data untuk diexport", Toast.LENGTH_SHORT).show()
+                                        return@DashboardScreen
                                     }
-                                }
-                            }
-                        )
-                    }
-                    "settings" -> {
-                        SettingsScreen(
-                            onNavigateBack = { currentScreen = "queue" }
-                        )
-                    }
-                    "report" -> {
-                        ReportScreen(
-                            viewModel = viewModel,
-                            onNavigateBack = { currentScreen = "queue" }
-                        )
-                    }
-                    "customer_history" -> {
-                        CustomerHistoryScreen(
-                            viewModel = viewModel,
-                            onNavigateBack = { currentScreen = "queue" }
-                        )
+                                    lifecycleScope.launch(Dispatchers.IO) {
+                                        val file = CsvExporter.exportToCsv(this@MainActivity, allTransactions)
+                                        withContext(Dispatchers.Main) {
+                                            CsvExporter.shareCsv(this@MainActivity, file)
+                                        }
+                                    }
+                                },
+                                modifier = Modifier.padding(paddingValues)
+                            )
+                        }
+                        "settings" -> {
+                            SettingsScreen(
+                                onNavigateBack = { currentScreen = "queue" }
+                            )
+                        }
+                        "report" -> {
+                            ReportScreen(
+                                viewModel = viewModel,
+                                onNavigateBack = { currentScreen = "queue" },
+                                modifier = Modifier.padding(paddingValues)
+                            )
+                        }
+                        "customer_history" -> {
+                            CustomerHistoryScreen(
+                                viewModel = viewModel,
+                                onNavigateBack = { currentScreen = "queue" },
+                                modifier = Modifier.padding(paddingValues)
+                            )
+                        }
                     }
                 }
             }
         }
     }
+
+    private data class BottomNavItem(
+        val route: String,
+        val label: String,
+        val icon: ImageVector
+    )
 
     private fun shareQueueStatus(orders: List<CustomerOrder>) {
         val waiting = orders.filter { it.status == "waiting" }
