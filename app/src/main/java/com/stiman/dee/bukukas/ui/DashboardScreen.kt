@@ -66,7 +66,7 @@ fun DashboardScreen(
     Scaffold(
         modifier = modifier,
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = DarkBackground
+        containerColor = Surface
     ) { paddingValues ->
         Column(
             modifier = Modifier

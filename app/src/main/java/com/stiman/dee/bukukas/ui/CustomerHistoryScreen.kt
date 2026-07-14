@@ -45,7 +45,7 @@ fun CustomerHistoryScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(DarkBackground)
+            .background(Surface)
             .padding(24.dp)
     ) {
         // Header

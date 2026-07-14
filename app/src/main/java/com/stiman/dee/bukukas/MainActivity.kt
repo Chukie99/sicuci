@@ -17,6 +17,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.stiman.dee.bukukas.ui.BukuKasTheme
@@ -54,20 +55,20 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     bottomBar = {
                         NavigationBar(
-                            containerColor = com.stiman.dee.bukukas.ui.DarkCard
+                            containerColor = com.stiman.dee.bukukas.ui.SurfaceCard
                         ) {
                             bottomNavItems.forEach { item ->
                                 NavigationBarItem(
                                     icon = { Icon(item.icon, contentDescription = item.label) },
-                                    label = { Text(item.label) },
+                                    label = { Text(item.label, fontSize = 11.sp) },
                                     selected = currentScreen == item.route,
                                     onClick = { currentScreen = item.route },
                                     colors = NavigationBarItemDefaults.colors(
-                                        selectedIconColor = com.stiman.dee.bukukas.ui.BlueAccent,
-                                        selectedTextColor = com.stiman.dee.bukukas.ui.BlueAccent,
+                                        selectedIconColor = com.stiman.dee.bukukas.ui.Primary,
+                                        selectedTextColor = com.stiman.dee.bukukas.ui.Primary,
                                         unselectedIconColor = com.stiman.dee.bukukas.ui.TextMuted,
                                         unselectedTextColor = com.stiman.dee.bukukas.ui.TextMuted,
-                                        indicatorColor = com.stiman.dee.bukukas.ui.BlueAccent.copy(alpha = 0.15f)
+                                        indicatorColor = com.stiman.dee.bukukas.ui.Primary.copy(alpha = 0.1f)
                                     )
                                 )
                             }

@@ -29,14 +29,13 @@ fun AddOrderDialog(
     onConfirm: (plate: String, motor: String, service: String, price: Long) -> Unit
 ) {
     var plateText by remember { mutableStateOf("") }
-    var vehicleType by remember { mutableStateOf("Motor") } // "Motor" or "Mobil"
+    var vehicleType by remember { mutableStateOf("Motor") }
     var selectedMotor by remember { mutableStateOf(motorTypes[0]) }
     var selectedMobil by remember { mutableStateOf(mobilTypes[0]) }
     var selectedServiceIndex by remember { mutableIntStateOf(0) }
     var motorExpanded by remember { mutableStateOf(false) }
     var mobilExpanded by remember { mutableStateOf(false) }
 
-    // Filter services based on vehicle type
     val filteredServices = serviceOptions.filter {
         it.category == vehicleType.lowercase()
     }
@@ -51,9 +50,10 @@ fun AddOrderDialog(
     ) {
         Card(
             modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .clip(RoundedCornerShape(24.dp)),
-            colors = CardDefaults.cardColors(containerColor = DarkCard)
+                .fillMaxWidth(0.92f)
+                .clip(RoundedCornerShape(20.dp)),
+            colors = CardDefaults.cardColors(containerColor = SurfaceCard),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -62,15 +62,20 @@ fun AddOrderDialog(
             ) {
                 // Header
                 Text(
-                    text = "Tambah Antrian",
-                    color = IncomeGreen,
-                    fontSize = 22.sp,
+                    text = "Antrian Baru",
+                    color = TextPrimary,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "Masukkan data kendaraan pelanggan",
+                    color = TextSecondary,
+                    fontSize = 13.sp
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // Vehicle Type Selector (Motor/Mobil)
+                // Vehicle Type Selector
                 Text(
                     text = "Jenis Kendaraan",
                     color = TextSecondary,
@@ -84,23 +89,24 @@ fun AddOrderDialog(
                 ) {
                     listOf("Motor", "Mobil").forEach { type ->
                         val isSelected = vehicleType == type
-                        OutlinedButton(
+                        Surface(
                             onClick = {
                                 vehicleType = type
                                 selectedServiceIndex = 0
                             },
-                            modifier = Modifier.weight(1f).height(48.dp),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                containerColor = if (isSelected) IncomeGreen.copy(alpha = 0.15f) else Slate800,
-                                contentColor = if (isSelected) IncomeGreen else TextSecondary
-                            )
+                            modifier = Modifier.weight(1f).height(44.dp),
+                            shape = RoundedCornerShape(10.dp),
+                            color = if (isSelected) Primary else SurfaceCardAlt,
+                            border = if (isSelected) null else ButtonDefaults.outlinedButtonBorder
                         ) {
-                            Text(
-                                text = type,
-                                fontSize = 14.sp,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
-                            )
+                            Box(contentAlignment = Alignment.Center) {
+                                Text(
+                                    text = type,
+                                    fontSize = 14.sp,
+                                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
+                                    color = if (isSelected) TextOnPrimary else TextSecondary
+                                )
+                            }
                         }
                     }
                 }
@@ -118,22 +124,20 @@ fun AddOrderDialog(
                 OutlinedTextField(
                     value = plateText,
                     onValueChange = { plateText = it.uppercase() },
-                    placeholder = {
-                        Text("Contoh: B 1234 ABC", color = TextMuted)
-                    },
+                    placeholder = { Text("B 1234 ABC", color = TextMuted) },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(10.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = IncomeGreen,
-                        unfocusedBorderColor = Slate600,
-                        focusedContainerColor = Slate800,
-                        unfocusedContainerColor = Slate800,
+                        focusedBorderColor = Accent,
+                        unfocusedBorderColor = Border,
+                        focusedContainerColor = Surface,
+                        unfocusedContainerColor = SurfaceCardAlt,
                         focusedTextColor = TextPrimary,
                         unfocusedTextColor = TextPrimary,
-                        cursorColor = IncomeGreen
+                        cursorColor = Accent
                     ),
                     singleLine = true,
-                    textStyle = LocalTextStyle.current.copy(fontSize = 16.sp)
+                    textStyle = LocalTextStyle.current.copy(fontSize = 15.sp)
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -159,12 +163,12 @@ fun AddOrderDialog(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .menuAnchor(),
-                            shape = RoundedCornerShape(12.dp),
+                            shape = RoundedCornerShape(10.dp),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = IncomeGreen,
-                                unfocusedBorderColor = Slate600,
-                                focusedContainerColor = Slate800,
-                                unfocusedContainerColor = Slate800,
+                                focusedBorderColor = Border,
+                                unfocusedBorderColor = Border,
+                                focusedContainerColor = SurfaceCardAlt,
+                                unfocusedContainerColor = SurfaceCardAlt,
                                 focusedTextColor = TextPrimary,
                                 unfocusedTextColor = TextPrimary
                             ),
@@ -203,12 +207,12 @@ fun AddOrderDialog(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .menuAnchor(),
-                            shape = RoundedCornerShape(12.dp),
+                            shape = RoundedCornerShape(10.dp),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = IncomeGreen,
-                                unfocusedBorderColor = Slate600,
-                                focusedContainerColor = Slate800,
-                                unfocusedContainerColor = Slate800,
+                                focusedBorderColor = Border,
+                                unfocusedBorderColor = Border,
+                                focusedContainerColor = SurfaceCardAlt,
+                                unfocusedContainerColor = SurfaceCardAlt,
                                 focusedTextColor = TextPrimary,
                                 unfocusedTextColor = TextPrimary
                             ),
@@ -239,7 +243,7 @@ fun AddOrderDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Service Type - compact chips
+                // Service Type
                 Text(
                     text = "Jenis Layanan",
                     color = TextSecondary,
@@ -248,7 +252,7 @@ fun AddOrderDialog(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // 2-column grid for services
+                // Service grid
                 val chunked = filteredServices.chunked(2)
                 chunked.forEach { rowItems ->
                     Row(
@@ -258,37 +262,38 @@ fun AddOrderDialog(
                         rowItems.forEach { service ->
                             val index = filteredServices.indexOf(service)
                             val isSelected = selectedServiceIndex == index
-                            OutlinedButton(
+                            Surface(
                                 onClick = { selectedServiceIndex = index },
                                 modifier = Modifier
                                     .weight(1f)
-                                    .height(64.dp),
-                                shape = RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.outlinedButtonColors(
-                                    containerColor = if (isSelected) IncomeGreen.copy(alpha = 0.15f) else Slate800,
-                                    contentColor = if (isSelected) IncomeGreen else TextSecondary
-                                ),
-                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 8.dp)
+                                    .height(56.dp),
+                                shape = RoundedCornerShape(10.dp),
+                                color = if (isSelected) Primary else SurfaceCardAlt,
+                                border = if (isSelected) null else ButtonDefaults.outlinedButtonBorder
                             ) {
                                 Column(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(horizontal = 8.dp),
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     verticalArrangement = Arrangement.Center
                                 ) {
                                     Text(
                                         text = service.name,
                                         fontSize = 11.sp,
-                                        fontWeight = FontWeight.Medium,
+                                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
+                                        color = if (isSelected) TextOnPrimary else TextSecondary,
                                         maxLines = 1
                                     )
                                     Text(
                                         text = formatter.format(service.price),
                                         fontSize = 11.sp,
-                                        fontWeight = FontWeight.Bold
+                                        fontWeight = FontWeight.Bold,
+                                        color = if (isSelected) TextOnPrimary else Success
                                     )
                                 }
                             }
                         }
-                        // Fill empty space if odd number
                         if (rowItems.size == 1) {
                             Spacer(modifier = Modifier.weight(1f))
                         }
@@ -298,7 +303,7 @@ fun AddOrderDialog(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // Buttons - always visible at bottom
+                // Buttons
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -306,10 +311,10 @@ fun AddOrderDialog(
                     OutlinedButton(
                         onClick = onDismiss,
                         modifier = Modifier.weight(1f).height(48.dp),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(10.dp),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = TextSecondary)
                     ) {
-                        Text("Batal", fontSize = 15.sp)
+                        Text("Batal", fontSize = 14.sp)
                     }
 
                     Button(
@@ -321,13 +326,13 @@ fun AddOrderDialog(
                             }
                         },
                         modifier = Modifier.weight(1f).height(48.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = IncomeGreen),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Accent),
                         enabled = plateText.isNotBlank() && filteredServices.isNotEmpty()
                     ) {
                         Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Tambah", fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                        Text("Tambah", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
