@@ -4,21 +4,34 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+
+    <!-- Water drop body -->
     <group
-        android:translateX="22"
-        android:translateY="22">
+        android:translateX="27"
+        android:translateY="18">
+        <!-- Main water drop -->
         <path
-            android:fillColor="#10B981"
-            android:pathData="M32,4C16.536,4 4,16.536 4,32s12.536,28 28,28 28,-12.536 28,-28S47.464,4 32,4z" />
+            android:fillColor="#3B82F6"
+            android:pathData="M27,4C27,4 54,36 54,54C54,69.464 41.964,82 27,82C12.036,82 0,69.464 0,54C0,36 27,4 27,4Z" />
+
+        <!-- Water drop highlight/shine -->
         <path
-            android:fillColor="#00000000"
-            android:pathData="M32,14v18h18"
-            android:strokeWidth="3"
-            android:strokeColor="#FFFFFF" />
+            android:fillColor="#60A5FA"
+            android:pathData="M27,16C27,16 44,40 44,54C44,63.941 36.404,72 27,72C27,72 27,16 27,16Z"
+            android:fillAlpha="0.5" />
+
+        <!-- Small bubble -->
         <path
-            android:fillColor="#00000000"
-            android:pathData="M26,28l6,-6 6,6"
-            android:strokeWidth="3"
-            android:strokeColor="#FFFFFF" />
+            android:fillColor="#FFFFFF"
+            android:pathData="M18,48C18,45.239 20.239,43 23,43C25.761,43 28,45.239 28,48C28,50.761 25.761,53 23,53C20.239,53 18,50.761 18,48Z"
+            android:fillAlpha="0.6" />
+
+        <!-- S letter for SiCuci -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M35,52C35,48 32,46 28,46C24,46 21,48 21,51C21,54 24,56 28,58C32,60 35,62 35,66C35,70 32,72 28,72C24,72 21,70 21,70"
+            android:strokeWidth="4"
+            android:strokeColor="#FFFFFF"
+            android:strokeLineCap="round" />
     </group>
 </vector>
