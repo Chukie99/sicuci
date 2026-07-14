@@ -228,13 +228,13 @@ fun QueueHeader(
     ) {
         Column {
             Text(
-                text = "Antrian Cuci Motor",
+                text = "Antrian Cuci",
                 color = TextPrimary,
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "$orderCount motor dalam antrian",
+                text = "$orderCount kendaraan dalam antrian",
                 color = TextSecondary,
                 fontSize = 14.sp
             )

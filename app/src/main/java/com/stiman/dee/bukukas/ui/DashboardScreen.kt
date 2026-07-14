@@ -240,7 +240,7 @@ fun HeaderSection(
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Kasir Digital Cuci Motor",
+                    text = "Kasir Digital Cuci Motor & Mobil",
                     color = TextSecondary,
                     fontSize = 14.sp
                 )

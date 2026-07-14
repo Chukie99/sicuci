@@ -107,9 +107,9 @@ fun SplashContent(onTimeout: () -> Unit) {
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Cuci Motor & Kasir Digital",
+                text = "Cuci Motor & Mobil - Kasir Digital",
                 color = IncomeGreen,
-                fontSize = 16.sp,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Medium
             )
         }

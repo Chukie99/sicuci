@@ -2,9 +2,9 @@
 
 # 🚿 SiCuci
 
-### Kasir Digital Cuci Motor
+### Kasir Digital Cuci Motor & Mobil
 
-**Aplikasi antrian, kasir, dan pencatatan keuangan untuk bisnis cuci motor**
+**Aplikasi antrian, kasir, dan pencatatan keuangan untuk bisnis cuci motor dan mobil**
 
 [![Android](https://img.shields.io/badge/Android-26%2B-brightgreen?style=flat&logo=android)](https://developer.android.com)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9-blue?style=flat&logo=kotlin)](https://kotlinlang.org)
@@ -23,7 +23,7 @@
 <td>
 
 ### 📋 Manajemen Antrian
-- Tambah antrian cuci motor
+- Tambah antrian cuci motor & mobil
 - Status: Menunggu → Dicuci → Selesai → Bayar
 - Nomor antrian otomatis
 - Filter & cari berdasarkan plat nomor
@@ -66,7 +66,7 @@
 
 | Queue Screen | Dashboard | Report |
 |:---:|:---:|:---:|
-| *Antrian Cuci Motor* | *Dashboard Keuangan* | *Laporan Detail* |
+| *Antrian Cuci Motor & Mobil* | *Dashboard Keuangan* | *Laporan Detail* |
 
 </div>
 
@@ -191,13 +191,14 @@ sicuci/
 
 ### v1.0.0 (2026-07-14)
 - ✅ Initial release
-- ✅ Queue management
+- ✅ Queue management (Motor & Mobil)
 - ✅ Transaction tracking
 - ✅ Dashboard & Reports
 - ✅ QRIS & Cash payment
 - ✅ CSV export
 - ✅ Backup/Restore
 - ✅ Customer history
+- ✅ Support cuci mobil (Sedan, SUV, MPV, dll)
 
 ## 🤝 Contributing
 
