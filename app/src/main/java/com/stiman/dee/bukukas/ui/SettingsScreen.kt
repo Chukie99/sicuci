@@ -9,10 +9,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.CloudUpload
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,27 +27,30 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.stiman.dee.bukukas.DatabaseBackup
 import com.stiman.dee.bukukas.PriceManager
+import com.stiman.dee.bukukas.ServiceOption
 import com.stiman.dee.bukukas.serviceOptions
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     onNavigateBack: () -> Unit
 ) {
     val context = LocalContext.current
-    LaunchedEffect(Unit) {
-        PriceManager.init(context)
-    }
-
-    var prices by remember {
-        mutableStateOf(
-            serviceOptions.associate { it.name to PriceManager.getPrice(it.name) }
-        )
-    }
+    var services by remember { mutableStateOf(serviceOptions) }
     var qrisText by remember { mutableStateOf(PriceManager.getQrisString()) }
     var saved by remember { mutableStateOf(false) }
+    var showAddDialog by remember { mutableStateOf(false) }
+    var showEditDialog by remember { mutableStateOf<ServiceOption?>(null) }
+    var showDeleteDialog by remember { mutableStateOf<ServiceOption?>(null) }
     val scope = rememberCoroutineScope()
+
+    // Refresh services when coming back
+    LaunchedEffect(Unit) {
+        PriceManager.init(context)
+        services = serviceOptions
+    }
 
     Column(
         modifier = Modifier
@@ -139,19 +145,34 @@ fun SettingsScreen(
                 }
             }
 
-            // Price Section Header
-            Text(
-                text = "Harga Layanan",
-                color = TextSecondary,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.padding(top = 4.dp)
-            )
+            // Price Section Header with Add Button
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Harga Layanan",
+                    color = TextSecondary,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium
+                )
+                Button(
+                    onClick = { showAddDialog = true },
+                    colors = ButtonDefaults.buttonColors(containerColor = IncomeGreen),
+                    shape = RoundedCornerShape(8.dp),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Tambah", fontSize = 12.sp)
+                }
+            }
 
             // Service price list
-            serviceOptions.forEach { service ->
+            services.forEach { service ->
                 var priceText by remember {
-                    mutableStateOf(prices[service.name]?.toString() ?: service.price.toString())
+                    mutableStateOf(PriceManager.getPrice(service.name).toString())
                 }
 
                 Card(
@@ -164,17 +185,57 @@ fun SettingsScreen(
                             .fillMaxWidth()
                             .padding(16.dp)
                     ) {
-                        Text(
-                            text = service.name,
-                            color = TextPrimary,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Text(
-                            text = service.description,
-                            color = TextMuted,
-                            fontSize = 11.sp
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = service.name,
+                                    color = TextPrimary,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Text(
+                                    text = service.description,
+                                    color = TextMuted,
+                                    fontSize = 11.sp
+                                )
+                                Text(
+                                    text = if (service.category == "motor") "Motor" else "Mobil",
+                                    color = if (service.category == "motor") BlueAccent else Gold,
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+
+                            // Edit & Delete buttons
+                            Row {
+                                IconButton(
+                                    onClick = { showEditDialog = service },
+                                    modifier = Modifier.size(32.dp)
+                                ) {
+                                    Icon(
+                                        Icons.Default.Edit,
+                                        contentDescription = "Edit",
+                                        tint = BlueAccent,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
+                                IconButton(
+                                    onClick = { showDeleteDialog = service },
+                                    modifier = Modifier.size(32.dp)
+                                ) {
+                                    Icon(
+                                        Icons.Default.Delete,
+                                        contentDescription = "Hapus",
+                                        tint = ExpenseRed,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
+                            }
+                        }
 
                         Spacer(modifier = Modifier.height(10.dp))
 
@@ -189,9 +250,7 @@ fun SettingsScreen(
                                 onValueChange = { newValue ->
                                     priceText = newValue.filter { it.isDigit() }
                                     val newPrice = priceText.toLongOrNull() ?: 0L
-                                    prices = prices.toMutableMap().apply {
-                                        put(service.name, newPrice)
-                                    }
+                                    PriceManager.setPrice(service.name, newPrice)
                                 },
                                 modifier = Modifier.weight(1f),
                                 shape = RoundedCornerShape(8.dp),
@@ -216,9 +275,9 @@ fun SettingsScreen(
             }
         }
 
-        // Backup/Restore Section
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Backup/Restore Section
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = DarkCard),
@@ -246,7 +305,6 @@ fun SettingsScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    // Backup button
                     Button(
                         onClick = {
                             scope.launch {
@@ -268,7 +326,6 @@ fun SettingsScreen(
                         Text("Backup", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                     }
 
-                    // Restore button
                     val restoreLauncher = rememberLauncherForActivityResult(
                         contract = ActivityResultContracts.OpenDocument()
                     ) { uri ->
@@ -299,35 +356,356 @@ fun SettingsScreen(
                 }
             }
         }
+    }
 
-        Spacer(modifier = Modifier.height(16.dp))
+    // Add Service Dialog
+    if (showAddDialog) {
+        AddServiceDialog(
+            onDismiss = { showAddDialog = false },
+            onConfirm = { name, price, description, category ->
+                PriceManager.addCustomService(
+                    ServiceOption(name = name, price = price, description = description, category = category)
+                )
+                services = serviceOptions
+                showAddDialog = false
+                Toast.makeText(context, "Layanan ditambahkan!", Toast.LENGTH_SHORT).show()
+            }
+        )
+    }
 
-        // Save button
-        Button(
-            onClick = {
-                prices.forEach { (name, price) ->
-                    PriceManager.setPrice(name, price)
-                }
-                PriceManager.setQrisString(qrisText)
-                saved = true
-                scope.launch {
-                    delay(2000)
-                    saved = false
+    // Edit Service Dialog
+    showEditDialog?.let { service ->
+        EditServiceDialog(
+            service = service,
+            onDismiss = { showEditDialog = null },
+            onConfirm = { name, price, description, category ->
+                PriceManager.updateService(
+                    service.name,
+                    ServiceOption(name = name, price = price, description = description, category = category)
+                )
+                services = serviceOptions
+                showEditDialog = null
+                Toast.makeText(context, "Layanan diupdate!", Toast.LENGTH_SHORT).show()
+            }
+        )
+    }
+
+    // Delete Confirmation Dialog
+    showDeleteDialog?.let { service ->
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = null },
+            containerColor = DarkCard,
+            title = {
+                Text("Hapus Layanan?", color = TextPrimary, fontWeight = FontWeight.Bold)
+            },
+            text = {
+                Text("Hapus \"${service.name}\" dari daftar layanan?", color = TextSecondary)
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        PriceManager.deleteService(service.name)
+                        services = serviceOptions
+                        showDeleteDialog = null
+                        Toast.makeText(context, "Layanan dihapus!", Toast.LENGTH_SHORT).show()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = ExpenseRed)
+                ) {
+                    Text("Hapus", color = Color.White)
                 }
             },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp),
-            shape = RoundedCornerShape(14.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = IncomeGreen)
-        ) {
-            Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(20.dp))
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = if (saved) "Tersimpan!" else "Simpan Semua",
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = null }) {
+                    Text("Batal", color = TextSecondary)
+                }
+            }
+        )
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddServiceDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (name: String, price: Long, description: String, category: String) -> Unit
+) {
+    var name by remember { mutableStateOf("") }
+    var priceText by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+    var category by remember { mutableStateOf("motor") }
+    var categoryExpanded by remember { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = DarkCard,
+        title = {
+            Text("Tambah Layanan Baru", color = IncomeGreen, fontWeight = FontWeight.Bold)
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Nama Layanan", color = TextMuted) },
+                    placeholder = { Text("Contoh: Cuci Full", color = TextMuted) },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = IncomeGreen,
+                        unfocusedBorderColor = Slate600,
+                        focusedContainerColor = Slate800,
+                        unfocusedContainerColor = Slate800,
+                        focusedTextColor = TextPrimary,
+                        unfocusedTextColor = TextPrimary
+                    ),
+                    singleLine = true
+                )
+
+                OutlinedTextField(
+                    value = priceText,
+                    onValueChange = { priceText = it.filter { c -> c.isDigit() } },
+                    label = { Text("Harga (Rp)", color = TextMuted) },
+                    placeholder = { Text("0", color = TextMuted) },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = IncomeGreen,
+                        unfocusedBorderColor = Slate600,
+                        focusedContainerColor = Slate800,
+                        unfocusedContainerColor = Slate800,
+                        focusedTextColor = TextPrimary,
+                        unfocusedTextColor = TextPrimary
+                    ),
+                    singleLine = true
+                )
+
+                OutlinedTextField(
+                    value = description,
+                    onValueChange = { description = it },
+                    label = { Text("Deskripsi", color = TextMuted) },
+                    placeholder = { Text("Deskripsi singkat layanan", color = TextMuted) },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = IncomeGreen,
+                        unfocusedBorderColor = Slate600,
+                        focusedContainerColor = Slate800,
+                        unfocusedContainerColor = Slate800,
+                        focusedTextColor = TextPrimary,
+                        unfocusedTextColor = TextPrimary
+                    ),
+                    singleLine = true
+                )
+
+                // Category dropdown
+                ExposedDropdownMenuBox(
+                    expanded = categoryExpanded,
+                    onExpandedChange = { categoryExpanded = !categoryExpanded }
+                ) {
+                    OutlinedTextField(
+                        value = if (category == "motor") "Motor" else "Mobil",
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Kategori", color = TextMuted) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor(),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = IncomeGreen,
+                            unfocusedBorderColor = Slate600,
+                            focusedContainerColor = Slate800,
+                            unfocusedContainerColor = Slate800,
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary
+                        ),
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = categoryExpanded)
+                        }
+                    )
+
+                    ExposedDropdownMenu(
+                        expanded = categoryExpanded,
+                        onDismissRequest = { categoryExpanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Motor") },
+                            onClick = {
+                                category = "motor"
+                                categoryExpanded = false
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Mobil") },
+                            onClick = {
+                                category = "mobil"
+                                categoryExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    val price = priceText.toLongOrNull() ?: 0L
+                    if (name.isNotBlank() && price > 0) {
+                        onConfirm(name, price, description, category)
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = IncomeGreen),
+                enabled = name.isNotBlank() && (priceText.toLongOrNull() ?: 0L) > 0
+            ) {
+                Text("Tambah", color = Color.White)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Batal", color = TextSecondary)
+            }
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EditServiceDialog(
+    service: ServiceOption,
+    onDismiss: () -> Unit,
+    onConfirm: (name: String, price: Long, description: String, category: String) -> Unit
+) {
+    var name by remember { mutableStateOf(service.name) }
+    var priceText by remember { mutableStateOf(service.price.toString()) }
+    var description by remember { mutableStateOf(service.description) }
+    var category by remember { mutableStateOf(service.category) }
+    var categoryExpanded by remember { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = DarkCard,
+        title = {
+            Text("Edit Layanan", color = BlueAccent, fontWeight = FontWeight.Bold)
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Nama Layanan", color = TextMuted) },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = BlueAccent,
+                        unfocusedBorderColor = Slate600,
+                        focusedContainerColor = Slate800,
+                        unfocusedContainerColor = Slate800,
+                        focusedTextColor = TextPrimary,
+                        unfocusedTextColor = TextPrimary
+                    ),
+                    singleLine = true
+                )
+
+                OutlinedTextField(
+                    value = priceText,
+                    onValueChange = { priceText = it.filter { c -> c.isDigit() } },
+                    label = { Text("Harga (Rp)", color = TextMuted) },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = BlueAccent,
+                        unfocusedBorderColor = Slate600,
+                        focusedContainerColor = Slate800,
+                        unfocusedContainerColor = Slate800,
+                        focusedTextColor = TextPrimary,
+                        unfocusedTextColor = TextPrimary
+                    ),
+                    singleLine = true
+                )
+
+                OutlinedTextField(
+                    value = description,
+                    onValueChange = { description = it },
+                    label = { Text("Deskripsi", color = TextMuted) },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = BlueAccent,
+                        unfocusedBorderColor = Slate600,
+                        focusedContainerColor = Slate800,
+                        unfocusedContainerColor = Slate800,
+                        focusedTextColor = TextPrimary,
+                        unfocusedTextColor = TextPrimary
+                    ),
+                    singleLine = true
+                )
+
+                ExposedDropdownMenuBox(
+                    expanded = categoryExpanded,
+                    onExpandedChange = { categoryExpanded = !categoryExpanded }
+                ) {
+                    OutlinedTextField(
+                        value = if (category == "motor") "Motor" else "Mobil",
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Kategori", color = TextMuted) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor(),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = BlueAccent,
+                            unfocusedBorderColor = Slate600,
+                            focusedContainerColor = Slate800,
+                            unfocusedContainerColor = Slate800,
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary
+                        ),
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = categoryExpanded)
+                        }
+                    )
+
+                    ExposedDropdownMenu(
+                        expanded = categoryExpanded,
+                        onDismissRequest = { categoryExpanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Motor") },
+                            onClick = {
+                                category = "motor"
+                                categoryExpanded = false
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Mobil") },
+                            onClick = {
+                                category = "mobil"
+                                categoryExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    val price = priceText.toLongOrNull() ?: 0L
+                    if (name.isNotBlank() && price > 0) {
+                        onConfirm(name, price, description, category)
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = BlueAccent),
+                enabled = name.isNotBlank() && (priceText.toLongOrNull() ?: 0L) > 0
+            ) {
+                Text("Simpan", color = Color.White)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Batal", color = TextSecondary)
+            }
+        }
+    )
 }

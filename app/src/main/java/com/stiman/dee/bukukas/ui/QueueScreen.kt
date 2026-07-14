@@ -283,6 +283,21 @@ fun QueueHeader(
                 Text("Keuangan", fontSize = 13.sp)
             }
 
+            OutlinedButton(
+                onClick = {
+                    // Open Ko-fi link
+                    val intent = android.content.Intent(
+                        android.content.Intent.ACTION_VIEW,
+                        android.net.Uri.parse("https://ko-fi.com/chuckie999")
+                    )
+                    context.startActivity(intent)
+                },
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFFF5E5B))
+            ) {
+                Text("☕", fontSize = 14.sp)
+            }
+
             Button(
                 onClick = onAddClick,
                 colors = ButtonDefaults.buttonColors(containerColor = IncomeGreen),

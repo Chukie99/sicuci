@@ -199,6 +199,32 @@ sicuci/
 - ✅ Backup/Restore
 - ✅ Customer history
 - ✅ Support cuci mobil (Sedan, SUV, MPV, dll)
+- ✅ Fully customizable services (tambah/edit/hapus layanan sendiri)
+
+## 📥 Download
+
+### Cara 1: Build dari Source
+```bash
+git clone https://github.com/Chukie99/sicuci.git
+cd sicuci
+./gradlew assembleDebug
+```
+APK akan ada di: `app/build/outputs/apk/debug/app-debug.apk`
+
+### Cara 2: Download APK
+👉 **[Download APK di GitHub Releases](https://github.com/Chukie99/sicuci/releases)**
+
+> ⚠️ Aktifkan "Install from Unknown Sources" di pengaturan Android kamu
+
+## ☕ Dukung Developer
+
+Kalau app ini berguna untuk bisnismu, traktir kopi ya! ☕
+
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-Donate%20Me-FF5E5B?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/chuckie999)
+
+Atau klik link langsung: **[ko-fi.com/chuckie999](https://ko-fi.com/chuckie999)**
+
+Dukungan kamu sangat berarti untuk pengembangan app ini! 🙏
 
 ## 🤝 Contributing
 
@@ -218,6 +244,7 @@ Project ini menggunakan license [MIT License](LICENSE).
 
 **Chukie99**
 - GitHub: [@Chukie99](https://github.com/Chukie99)
+- Ko-fi: [@chuckie999](https://ko-fi.com/chuckie999)
 
 ## ⭐ Star History
 
