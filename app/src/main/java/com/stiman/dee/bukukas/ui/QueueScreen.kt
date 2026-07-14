@@ -22,6 +22,7 @@ import androidx.compose.material3.*
 import android.content.Context
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -221,6 +222,7 @@ fun QueueHeader(
     onDashboardClick: () -> Unit,
     onCustomerHistoryClick: () -> Unit = {}
 ) {
+    val context = LocalContext.current
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,

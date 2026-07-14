@@ -45,6 +45,7 @@ fun DashboardScreen(
     onDownloadCsv: () -> Unit = {}
 ) {
     val transactions by viewModel.transactions.collectAsState()
+    val allTransactions by viewModel.allTransactions.collectAsState()
     val totalIncome by viewModel.totalIncome.collectAsState()
     val totalExpense by viewModel.totalExpense.collectAsState()
     val selectedDate by viewModel.selectedDate.collectAsState()
