@@ -36,6 +36,7 @@ fun QueueScreen(
     modifier: Modifier = Modifier
 ) {
     val activeOrders by viewModel.activeOrders.collectAsState()
+    val todayPaidOrders by viewModel.todayPaidOrders.collectAsState()
     var showAddDialog by remember { mutableStateOf(false) }
     var showPaymentDialog by remember { mutableStateOf<CustomerOrder?>(null) }
     var showDeleteDialog by remember { mutableStateOf<CustomerOrder?>(null) }
@@ -43,6 +44,12 @@ fun QueueScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+
+    // Stats
+    val waitingCount = activeOrders.count { it.status == "waiting" }
+    val washingCount = activeOrders.count { it.status == "washing" }
+    val doneCount = activeOrders.count { it.status == "done" }
+    val todayRevenue = todayPaidOrders.sumOf { it.servicePrice }
 
     val filteredOrders = if (searchQuery.isBlank()) {
         activeOrders
@@ -74,175 +81,215 @@ fun QueueScreen(
             }
         }
     ) { paddingValues ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(paddingValues),
+            contentPadding = PaddingValues(bottom = 80.dp)
         ) {
-            // ═══════════════ HEADER ═══════════════
-            Surface(
-                color = Primary,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .statusBarsPadding()
-                        .padding(horizontal = 20.dp, vertical = 16.dp)
+            // ═══════════════ DASHBOARD HEADER ═══════════════
+            item {
+                Surface(
+                    color = Primary,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    // Title row
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .statusBarsPadding()
+                            .padding(horizontal = 20.dp, vertical = 16.dp)
                     ) {
-                        Column {
-                            Text(
-                                text = "SiCuci",
-                                color = Color.White,
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = "Antrian Hari Ini",
-                                color = Color.White.copy(alpha = 0.7f),
-                                fontSize = 13.sp
-                            )
-                        }
-
-                        // Share button
-                        FilledTonalButton(
-                            onClick = onShareQueue,
-                            shape = RoundedCornerShape(10.dp),
-                            colors = ButtonDefaults.filledTonalButtonColors(
-                                containerColor = Color.White.copy(alpha = 0.15f),
-                                contentColor = Color.White
-                            ),
-                            contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp)
+                        // Title row
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(
-                                Icons.Default.Share,
-                                contentDescription = null,
-                                modifier = Modifier.size(16.dp)
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text("Share", fontSize = 13.sp)
+                            Column {
+                                Text(
+                                    text = "SiCuci",
+                                    color = Color.White,
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = "Dashboard Hari Ini",
+                                    color = Color.White.copy(alpha = 0.7f),
+                                    fontSize = 13.sp
+                                )
+                            }
+
+                            // Share button
+                            FilledTonalButton(
+                                onClick = onShareQueue,
+                                shape = RoundedCornerShape(10.dp),
+                                colors = ButtonDefaults.filledTonalButtonColors(
+                                    containerColor = Color.White.copy(alpha = 0.15f),
+                                    contentColor = Color.White
+                                ),
+                                contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.Share,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text("Share", fontSize = 13.sp)
+                            }
                         }
-                    }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                    // Quick Stats
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        QuickStat(
-                            label = "Antrian",
-                            count = activeOrders.count { it.status == "waiting" },
-                            color = StatusWaiting,
-                            modifier = Modifier.weight(1f)
-                        )
-                        QuickStat(
-                            label = "Dicuci",
-                            count = activeOrders.count { it.status == "washing" },
-                            color = StatusWashing,
-                            modifier = Modifier.weight(1f)
-                        )
-                        QuickStat(
-                            label = "Selesai",
-                            count = activeOrders.count { it.status == "done" },
-                            color = StatusDone,
-                            modifier = Modifier.weight(1f)
-                        )
+                        // Stats Cards - 2x2 Grid
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            DashboardStatCard(
+                                label = "Antre",
+                                count = waitingCount,
+                                color = StatusWaiting,
+                                modifier = Modifier.weight(1f)
+                            )
+                            DashboardStatCard(
+                                label = "Dicuci",
+                                count = washingCount,
+                                color = StatusWashing,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            DashboardStatCard(
+                                label = "Selesai",
+                                count = doneCount,
+                                color = StatusDone,
+                                modifier = Modifier.weight(1f)
+                            )
+                            DashboardStatCard(
+                                label = "Pendapatan",
+                                count = todayPaidOrders.size,
+                                color = Accent,
+                                modifier = Modifier.weight(1f),
+                                amount = formatPrice(todayRevenue)
+                            )
+                        }
                     }
                 }
             }
 
             // ═══════════════ SEARCH BAR ═══════════════
-            Surface(
-                color = SurfaceCard,
-                shadowElevation = 1.dp
-            ) {
-                OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
-                    placeholder = {
-                        Text("Cari plat nomor...", color = TextMuted, fontSize = 14.sp)
-                    },
-                    leadingIcon = {
-                        Icon(Icons.Default.Search, contentDescription = null, tint = TextMuted, modifier = Modifier.size(20.dp))
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 10.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Accent,
-                        unfocusedBorderColor = Border,
-                        focusedContainerColor = Surface,
-                        unfocusedContainerColor = Surface,
-                        focusedTextColor = TextPrimary,
-                        unfocusedTextColor = TextPrimary,
-                        cursorColor = Accent
-                    ),
-                    singleLine = true
-                )
+            item {
+                Surface(
+                    color = SurfaceCard,
+                    shadowElevation = 1.dp
+                ) {
+                    OutlinedTextField(
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        placeholder = {
+                            Text("Cari plat nomor...", color = TextMuted, fontSize = 14.sp)
+                        },
+                        leadingIcon = {
+                            Icon(Icons.Default.Search, contentDescription = null, tint = TextMuted, modifier = Modifier.size(20.dp))
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 10.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Accent,
+                            unfocusedBorderColor = Border,
+                            focusedContainerColor = Surface,
+                            unfocusedContainerColor = Surface,
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary,
+                            cursorColor = Accent
+                        ),
+                        singleLine = true
+                    )
+                }
             }
 
-            // ═══════════════ QUEUE LIST ═══════════════
-            if (filteredOrders.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(32.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Surface(
-                            shape = CircleShape,
-                            color = SurfaceCardAlt,
-                            modifier = Modifier.size(72.dp)
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    Icons.Default.CheckCircle,
-                                    contentDescription = null,
-                                    tint = TextMuted,
-                                    modifier = Modifier.size(36.dp)
-                                )
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(16.dp))
+            // ═══════════════ SECTION TITLE ═══════════════
+            if (filteredOrders.isNotEmpty()) {
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp, vertical = 12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Text(
-                            text = if (searchQuery.isNotBlank()) "Tidak ditemukan" else "Antrian kosong",
+                            text = "Daftar Antrean",
                             color = TextPrimary,
                             fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium
+                            fontWeight = FontWeight.SemiBold
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = if (searchQuery.isNotBlank()) "Plat \"$searchQuery\" tidak ada" else "Tap + untuk tambah antrian baru",
+                            text = "${filteredOrders.size} kendaraan",
                             color = TextMuted,
                             fontSize = 13.sp
                         )
                     }
                 }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    contentPadding = PaddingValues(vertical = 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    items(filteredOrders) { order ->
-                        QueueItemCard(
-                            order = order,
-                            onStartWashing = { viewModel.startWashing(order) },
-                            onFinishWashing = { viewModel.finishWashing(order) },
-                            onPay = { showPaymentDialog = order },
-                            onDelete = { showDeleteDialog = order }
-                        )
+            }
+
+            // ═══════════════ QUEUE LIST ═══════════════
+            if (filteredOrders.isEmpty()) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(48.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Surface(
+                                shape = CircleShape,
+                                color = SurfaceCardAlt,
+                                modifier = Modifier.size(72.dp)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        Icons.Default.CheckCircle,
+                                        contentDescription = null,
+                                        tint = TextMuted,
+                                        modifier = Modifier.size(36.dp)
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = if (searchQuery.isNotBlank()) "Tidak ditemukan" else "Belum ada antrian",
+                                color = TextPrimary,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = if (searchQuery.isNotBlank()) "Plat \"$searchQuery\" tidak ada" else "Tap + untuk registrasi kendaraan baru",
+                                color = TextMuted,
+                                fontSize = 13.sp
+                            )
+                        }
                     }
+                }
+            } else {
+                items(filteredOrders) { order ->
+                    QueueItemCard(
+                        order = order,
+                        onStartWashing = { viewModel.startWashing(order) },
+                        onFinishWashing = { viewModel.finishWashing(order) },
+                        onPay = { showPaymentDialog = order },
+                        onDelete = { showDeleteDialog = order },
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
                 }
             }
         }
@@ -312,6 +359,60 @@ fun QueueScreen(
 }
 
 @Composable
+private fun DashboardStatCard(
+    label: String,
+    count: Int,
+    color: Color,
+    modifier: Modifier = Modifier,
+    amount: String? = null
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(12.dp),
+        color = Color.White.copy(alpha = 0.12f)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .clip(CircleShape)
+                        .background(color)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = label,
+                    color = Color.White.copy(alpha = 0.7f),
+                    fontSize = 12.sp
+                )
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+            if (amount != null) {
+                Text(
+                    text = amount,
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            } else {
+                Text(
+                    text = count.toString(),
+                    color = Color.White,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun QuickStat(
     label: String,
     count: Int,
@@ -359,7 +460,8 @@ private fun QueueItemCard(
     onStartWashing: () -> Unit,
     onFinishWashing: () -> Unit,
     onPay: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val statusConfig = when (order.status) {
         "waiting" -> Triple(StatusWaiting, "Menunggu", "Mulai Cuci")
@@ -370,7 +472,7 @@ private fun QueueItemCard(
     val (statusColor, statusText, actionText) = statusConfig
 
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .combinedClickable(
                 onClick = {},

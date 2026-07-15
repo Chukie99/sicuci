@@ -53,6 +53,9 @@ class TransactionViewModel(application: Application) : AndroidViewModel(applicat
     val allOrders: StateFlow<List<CustomerOrder>> = orderDao.getAllOrders()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    val todayPaidOrders: StateFlow<List<CustomerOrder>> = orderDao.getTodayPaidOrders()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     // Customer history search
     private val _searchPlateNumber = MutableStateFlow("")
     val searchPlateNumber: StateFlow<String> = _searchPlateNumber.asStateFlow()

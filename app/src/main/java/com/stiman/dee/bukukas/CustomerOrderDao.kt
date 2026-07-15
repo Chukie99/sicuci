@@ -33,6 +33,9 @@ interface CustomerOrderDao {
     @Query("SELECT MAX(queueNumber) FROM customer_orders WHERE date(createdAt/1000, 'unixepoch', 'localtime') = date('now', 'localtime')")
     suspend fun getTodayMaxQueue(): Int?
 
+    @Query("SELECT * FROM customer_orders WHERE status = 'paid' AND date(paidAt/1000, 'unixepoch', 'localtime') = date('now', 'localtime') ORDER BY paidAt DESC")
+    fun getTodayPaidOrders(): Flow<List<CustomerOrder>>
+
     @Query("DELETE FROM customer_orders WHERE id = :id")
     suspend fun deleteById(id: Long)
 }
