@@ -18,57 +18,14 @@
 
 ## ✨ Fitur Utama
 
-<table>
-<tr>
-<td>
-
-### 📋 Manajemen Antrian
-- Tambah antrian cuci motor & mobil
-- Status: Menunggu → Dicuci → Selesai → Bayar
-- Nomor antrian otomatis
-- Filter & cari berdasarkan plat nomor
-
-</td>
-<td>
-
-### 💰 Kasir Digital
-- Pembayaran QRIS & Tunai
-- Perhitungan kembalian otomatis
-- QR Code QRIS real-time
-- Cetak struk digital
-
-</td>
-</tr>
-<tr>
-<td>
-
-### 📊 Laporan Keuangan
-- Dashboard harian & keseluruhan
-- Grafik pendapatan 7 hari
-- Filter: Hari Ini, Minggu, Bulan, Pilih Bulan
-- Export ke CSV
-
-</td>
-<td>
-
-### 👤 Riwayat Pelanggan
-- Cari riwayat berdasarkan plat nomor
-- Total kunjungan & total belanja
-- History lengkap setiap pelanggan
-
-</td>
-</tr>
-</table>
-
-## 📸 Screenshots
-
-<div align="center">
-
-| Queue Screen | Dashboard | Report |
-|:---:|:---:|:---:|
-| *Antrian Cuci Motor & Mobil* | *Dashboard Keuangan* | *Laporan Detail* |
-
-</div>
+| Fitur | Deskripsi |
+|-------|-----------|
+| 📋 **Manajemen Antrian** | Tambah antrian cuci motor & mobil, status: Menunggu → Dicuci → Selesai → Bayar, nomor antrian otomatis, filter & cari berdasarkan plat nomor |
+| 💰 **Kasir Digital** | Pembayaran QRIS & Tunai, perhitungan kembalian otomatis, QR Code QRIS real-time, cetak struk digital |
+| 📊 **Laporan Keuangan** | Dashboard harian & keseluruhan, grafik pendapatan 7 hari, filter: Hari Ini / Minggu / Bulan / Pilih Bulan, export ke CSV |
+| 👤 **Riwayat Pelanggan** | Cari riwayat berdasarkan plat nomor, total kunjungan & total belanja, history lengkap setiap pelanggan |
+| ⚙️ **Pengaturan** | Atur harga layanan, konfigurasi QRIS, backup & restore database |
+| 📱 **Multi Platform** | Support cuci motor & mobil (Sedan, SUV, MPV, dll) |
 
 ## 🛠️ Tech Stack
 
@@ -85,6 +42,7 @@
 ## 📦 Instalasi
 
 ### Prasyarat
+
 - Android Studio Hedgehog (2023.1.1) atau lebih baru
 - JDK 17
 - Device/Emulator dengan Android 8.0 (API 26) atau lebih baru
@@ -173,16 +131,19 @@ sicuci/
 ## 🔧 Konfigurasi
 
 ### Mengatur Harga Layanan
+
 1. Buka menu **Harga** (Settings)
 2. Edit harga setiap layanan
 3. Tap **Simpan Semua**
 
 ### Mengatur QRIS
+
 1. Buka menu **Harga** (Settings)
 2. Masukkan kode/link QRIS
 3. Tap **Simpan Semua**
 
 ### Backup Data
+
 1. Buka menu **Harga** (Settings)
 2. Scroll ke bawah → **Backup & Restore**
 3. Tap **Backup** → Pilih tempat simpan
@@ -228,7 +189,7 @@ Dukungan kamu sangat berarti untuk pengembangan app ini! 🙏
 
 ## 🤝 Contributing
 
-Kontribusi sangat welcome! 
+Kontribusi sangat welcome!
 
 1. Fork repository
 2. Buat branch baru (`git checkout -b feature/fitur-baru`)
@@ -245,10 +206,6 @@ Project ini menggunakan license [MIT License](LICENSE).
 **Chukie99**
 - GitHub: [@Chukie99](https://github.com/Chukie99)
 - Ko-fi: [@chuckie999](https://ko-fi.com/chuckie999)
-
-## ⭐ Star History
-
-Kalau project ini berguna, bantu star ya! ⭐
 
 ---
 
