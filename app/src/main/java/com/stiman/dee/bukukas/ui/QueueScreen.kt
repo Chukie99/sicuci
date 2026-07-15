@@ -1,6 +1,8 @@
 package com.stiman.dee.bukukas.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -10,7 +12,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
@@ -24,8 +25,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import com.stiman.dee.bukukas.CustomerOrder
 import com.stiman.dee.bukukas.TransactionViewModel
 import kotlinx.coroutines.launch
@@ -39,6 +38,7 @@ fun QueueScreen(
     val activeOrders by viewModel.activeOrders.collectAsState()
     var showAddDialog by remember { mutableStateOf(false) }
     var showPaymentDialog by remember { mutableStateOf<CustomerOrder?>(null) }
+    var showDeleteDialog by remember { mutableStateOf<CustomerOrder?>(null) }
     var searchQuery by remember { mutableStateOf("") }
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -240,19 +240,7 @@ fun QueueScreen(
                             onStartWashing = { viewModel.startWashing(order) },
                             onFinishWashing = { viewModel.finishWashing(order) },
                             onPay = { showPaymentDialog = order },
-                            onDelete = {
-                                viewModel.deleteOrder(order)
-                                scope.launch {
-                                    val result = snackbarHostState.showSnackbar(
-                                        message = "Antrian #${order.queueNumber} dihapus",
-                                        actionLabel = "Urungkan",
-                                        duration = SnackbarDuration.Short
-                                    )
-                                    if (result == SnackbarResult.ActionPerformed) {
-                                        viewModel.reinsertOrder(order)
-                                    }
-                                }
-                            }
+                            onDelete = { showDeleteDialog = order }
                         )
                     }
                 }
@@ -277,6 +265,47 @@ fun QueueScreen(
             onPay = { method, amount ->
                 viewModel.processPayment(order, method, amount)
                 showPaymentDialog = null
+            }
+        )
+    }
+
+    // Delete confirmation dialog
+    showDeleteDialog?.let { order ->
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = null },
+            containerColor = SurfaceCard,
+            title = {
+                Text("Hapus Antrian?", color = TextPrimary, fontWeight = FontWeight.Bold)
+            },
+            text = {
+                Text("Hapus antrian #${order.queueNumber} (${order.plateNumber})?", color = TextSecondary)
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        viewModel.deleteOrder(order)
+                        showDeleteDialog = null
+                        scope.launch {
+                            val result = snackbarHostState.showSnackbar(
+                                message = "Antrian #${order.queueNumber} dihapus",
+                                actionLabel = "Urungkan",
+                                duration = SnackbarDuration.Short
+                            )
+                            if (result == SnackbarResult.ActionPerformed) {
+                                viewModel.reinsertOrder(order)
+                            }
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Danger),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text("Hapus", color = Color.White)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = null }) {
+                    Text("Batal", color = TextSecondary)
+                }
             }
         )
     }
@@ -323,6 +352,7 @@ private fun QuickStat(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun QueueItemCard(
     order: CustomerOrder,
@@ -332,15 +362,20 @@ private fun QueueItemCard(
     onDelete: () -> Unit
 ) {
     val statusConfig = when (order.status) {
-        "waiting" -> Triple(StatusWaiting, "Menunggu", "Mulai")
+        "waiting" -> Triple(StatusWaiting, "Menunggu", "Mulai Cuci")
         "washing" -> Triple(StatusWashing, "Dicuci", "Selesai")
-        "done" -> Triple(StatusDone, "Selesai", "Bayar")
+        "done" -> Triple(StatusDone, "Selesai", "Bayar Sekarang")
         else -> Triple(TextMuted, "Dibayar", "")
     }
     val (statusColor, statusText, actionText) = statusConfig
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .combinedClickable(
+                onClick = {},
+                onLongClick = { onDelete() }
+            ),
         shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(containerColor = SurfaceCard),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
@@ -421,11 +456,11 @@ private fun QueueItemCard(
                             onClick = onStartWashing,
                             colors = ButtonDefaults.buttonColors(containerColor = StatusWashing),
                             shape = RoundedCornerShape(10.dp),
-                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 10.dp)
                         ) {
-                            Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(16.dp))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(actionText, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                            Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(actionText, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                         }
                     }
                     "washing" -> {
@@ -433,11 +468,11 @@ private fun QueueItemCard(
                             onClick = onFinishWashing,
                             colors = ButtonDefaults.buttonColors(containerColor = StatusDone),
                             shape = RoundedCornerShape(10.dp),
-                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 10.dp)
                         ) {
-                            Icon(Icons.Default.CheckCircle, contentDescription = null, modifier = Modifier.size(16.dp))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(actionText, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                            Icon(Icons.Default.CheckCircle, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(actionText, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                         }
                     }
                     "done" -> {
@@ -445,15 +480,23 @@ private fun QueueItemCard(
                             onClick = onPay,
                             colors = ButtonDefaults.buttonColors(containerColor = Accent),
                             shape = RoundedCornerShape(10.dp),
-                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 10.dp)
                         ) {
-                            Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(actionText, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                            Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(actionText, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                         }
                     }
                 }
             }
+
+            // Hint text
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Long press untuk hapus",
+                color = TextMuted,
+                fontSize = 11.sp
+            )
         }
     }
 }
