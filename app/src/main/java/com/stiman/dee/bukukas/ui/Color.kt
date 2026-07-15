@@ -2,54 +2,73 @@ package com.stiman.dee.bukukas.ui
 
 import androidx.compose.ui.graphics.Color
 
-// Primary palette — deep indigo-navy, professional & trustworthy
-val Primary = Color(0xFF1A2744)
-val PrimaryLight = Color(0xFF243656)
-val PrimaryDark = Color(0xFF0F1A2E)
+// ══════════════════════════════════════════════════════════════
+// PRIMARY PALETTE
+// ══════════════════════════════════════════════════════════════
 
-// Surface colors — warm off-white, not sterile
-val Surface = Color(0xFFF7F8FA)
+// Primary — deep navy for headers and key elements
+val Primary = Color(0xFF1B2A4A)
+val PrimaryLight = Color(0xFF2C3E6B)
+val PrimaryDark = Color(0xFF0F1B33)
+
+// Accent — warm amber/orange for CTAs and highlights
+val Accent = Color(0xFFF0932B)
+val AccentLight = Color(0xFFF5B041)
+val AccentDark = Color(0xFFD68910)
+
+// ══════════════════════════════════════════════════════════════
+// SURFACE & BACKGROUND
+// ══════════════════════════════════════════════════════════════
+
+// Background — clean light gray
+val Surface = Color(0xFFF5F6FA)
 val SurfaceCard = Color(0xFFFFFFFF)
-val SurfaceCardAlt = Color(0xFFF0F2F5)
+val SurfaceCardAlt = Color(0xFFEEF0F5)
 
-// Accent — warm amber, for actions and CTAs
-val Accent = Color(0xFFE8913A)
-val AccentLight = Color(0xFFF0A85C)
-val AccentDark = Color(0xFFD07A28)
+// ══════════════════════════════════════════════════════════════
+// STATUS COLORS
+// ══════════════════════════════════════════════════════════════
 
-// Success — teal-green, calm not neon
-val Success = Color(0xFF2D9C8A)
-val SuccessLight = Color(0xFF3DB8A8)
-val SuccessDark = Color(0xFF1E7A6A)
+// Status — queue workflow
+val StatusWaiting = Color(0xFFF39C12)   // Orange/amber — waiting
+val StatusWashing = Color(0xFF3498DB)   // Blue — in progress
+val StatusDone = Color(0xFF27AE60)      // Green — completed
 
-// Danger — muted coral, not screaming red
-val Danger = Color(0xFFD94F4F)
-val DangerLight = Color(0xFFE87070)
-val DangerDark = Color(0xFFB83A3A)
+// Success / Income — calm green
+val Success = Color(0xFF27AE60)
+val SuccessLight = Color(0xFF2ECC71)
+
+// Danger / Expense — muted red
+val Danger = Color(0xFFE74C3C)
+val DangerLight = Color(0xFFEC7063)
 
 // Warning
-val Warning = Color(0xFFE5A93B)
+val Warning = Color(0xFFF39C12)
 
 // Info
-val Info = Color(0xFF4A7FBF)
+val Info = Color(0xFF3498DB)
 
-// Text hierarchy
-val TextPrimary = Color(0xFF1A2744)
-val TextSecondary = Color(0xFF5A6B82)
-val TextMuted = Color(0xFF8E9BB0)
+// ══════════════════════════════════════════════════════════════
+// TEXT HIERARCHY
+// ══════════════════════════════════════════════════════════════
+
+val TextPrimary = Color(0xFF1B2A4A)
+val TextSecondary = Color(0xFF6B7B8D)
+val TextMuted = Color(0xFF9DA8B5)
 val TextOnPrimary = Color(0xFFFFFFFF)
 val TextOnAccent = Color(0xFFFFFFFF)
 
-// Borders & dividers
-val Border = Color(0xFFE2E6EC)
-val Divider = Color(0xFFEEF0F4)
+// ══════════════════════════════════════════════════════════════
+// BORDERS & DIVIDERS
+// ══════════════════════════════════════════════════════════════
 
-// Status colors (for queue)
-val StatusWaiting = Color(0xFFE5A93B)
-val StatusWashing = Color(0xFF4A7FBF)
-val StatusDone = Color(0xFF2D9C8A)
+val Border = Color(0xFFE0E4EA)
+val Divider = Color(0xFFECEEF2)
 
-// Legacy aliases (for backward compatibility)
+// ══════════════════════════════════════════════════════════════
+// ALIASES (backward compatibility)
+// ══════════════════════════════════════════════════════════════
+
 val DarkBackground = Surface
 val DarkSurface = SurfaceCard
 val DarkCard = SurfaceCard
@@ -62,7 +81,6 @@ val ExpenseRedLight = DangerLight
 
 val AccentWhite = TextOnPrimary
 
-// More legacy aliases
 val Slate900 = Primary
 val Slate800 = SurfaceCardAlt
 val Slate700 = Border
@@ -73,8 +91,8 @@ val Slate400 = TextMuted
 val BlueAccent = Info
 val Gold = Warning
 
-val IncomeGreenDark = SuccessDark
-val ExpenseRedDark = DangerDark
+val IncomeGreenDark = Success
+val ExpenseRedDark = Danger
 
 val NeonGreen = SuccessLight
 val NeonGreenDark = Success

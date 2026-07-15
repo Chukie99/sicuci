@@ -7,6 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
@@ -17,6 +18,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -26,6 +28,10 @@ import com.stiman.dee.bukukas.ui.DashboardScreen
 import com.stiman.dee.bukukas.ui.QueueScreen
 import com.stiman.dee.bukukas.ui.ReportScreen
 import com.stiman.dee.bukukas.ui.SettingsScreen
+import com.stiman.dee.bukukas.ui.Primary
+import com.stiman.dee.bukukas.ui.TextMuted
+import com.stiman.dee.bukukas.ui.SurfaceCard
+import com.stiman.dee.bukukas.ui.Accent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -53,22 +59,36 @@ class MainActivity : ComponentActivity() {
                 )
 
                 Scaffold(
+                    containerColor = com.stiman.dee.bukukas.ui.Surface,
                     bottomBar = {
                         NavigationBar(
-                            containerColor = com.stiman.dee.bukukas.ui.SurfaceCard
+                            containerColor = SurfaceCard,
+                            tonalElevation = 0.dp
                         ) {
                             bottomNavItems.forEach { item ->
                                 NavigationBarItem(
-                                    icon = { Icon(item.icon, contentDescription = item.label) },
-                                    label = { Text(item.label, fontSize = 11.sp) },
+                                    icon = {
+                                        Icon(
+                                            item.icon,
+                                            contentDescription = item.label,
+                                            modifier = Modifier.size(22.dp)
+                                        )
+                                    },
+                                    label = {
+                                        Text(
+                                            item.label,
+                                            fontSize = 11.sp,
+                                            maxLines = 1
+                                        )
+                                    },
                                     selected = currentScreen == item.route,
                                     onClick = { currentScreen = item.route },
                                     colors = NavigationBarItemDefaults.colors(
-                                        selectedIconColor = com.stiman.dee.bukukas.ui.Primary,
-                                        selectedTextColor = com.stiman.dee.bukukas.ui.Primary,
-                                        unselectedIconColor = com.stiman.dee.bukukas.ui.TextMuted,
-                                        unselectedTextColor = com.stiman.dee.bukukas.ui.TextMuted,
-                                        indicatorColor = com.stiman.dee.bukukas.ui.Primary.copy(alpha = 0.1f)
+                                        selectedIconColor = Primary,
+                                        selectedTextColor = Primary,
+                                        unselectedIconColor = TextMuted,
+                                        unselectedTextColor = TextMuted,
+                                        indicatorColor = Primary.copy(alpha = 0.08f)
                                     )
                                 )
                             }
